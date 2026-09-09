@@ -1,0 +1,8 @@
+build/
+*.o
+*.a
+*.so
+
+# IQ captures are large binaries — keep them out of git.
+captures/*
+!captures/README.md
