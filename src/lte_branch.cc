@@ -100,7 +100,8 @@ double LteBranch::sync_rate_hz() const {
 
 double LteBranch::frame_duration_s() const { return 0.2; }
 
-std::vector<double> LteBranch::nco_offsets_hz(double /*fc_hz*/) const {
+std::vector<double> LteBranch::nco_offsets_hz(double /*fc_hz*/,
+                                              double /*fs_hz*/) const {
   return {0.0};
 }
 

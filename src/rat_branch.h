@@ -38,9 +38,11 @@ public:
 
   /// NCO frequency-shift hypotheses (offsets from stream Fc, in Hz) the
   /// framing layer should try for this branch. LTE's PSS/SSS is at carrier
-  /// center, so LTE returns {0}. NR returns GSCN raster points near Fc,
-  /// because the SSB sits at a raster offset even on a "centered" carrier.
-  virtual std::vector<double> nco_offsets_hz(double fc_hz) const = 0;
+  /// center, so LTE returns {0}. NR returns GSCN sync-raster points that fit
+  /// inside the captured bandwidth `fs_hz` around `fc_hz`, because the SSB
+  /// sits at a raster offset even on a "centered" carrier.
+  virtual std::vector<double> nco_offsets_hz(double fc_hz,
+                                             double fs_hz) const = 0;
 
   /// Run one sync + PBCH/MIB attempt over the frame.
   /// @return a normalized record if the branch locked, std::nullopt otherwise.

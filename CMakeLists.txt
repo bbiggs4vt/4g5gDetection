@@ -18,6 +18,7 @@ find_package(SRSRAN REQUIRED)
 add_library(cellsearch
   src/detector.cc
   src/framing.cc
+  src/gscn.cc
   src/lte_branch.cc
   src/nr_branch.cc
   src/file_iq_stream.cc
@@ -31,6 +32,10 @@ target_compile_options(cellsearch PRIVATE -Wall -Wextra)
 
 add_executable(cellsearch_probe apps/cellsearch_probe.cc)
 target_link_libraries(cellsearch_probe PRIVATE cellsearch)
+
+# Test-capture generator (srsran_ssb TX side); tooling, not part of the core.
+add_executable(gen_nr_ssb_capture tools/gen_nr_ssb_capture.cc)
+target_link_libraries(gen_nr_ssb_capture PRIVATE srsran::phy)
 
 enable_testing()
 add_executable(framing_test tests/framing_test.cc)
@@ -48,4 +53,13 @@ add_test(NAME lte_e2e_6prb COMMAND lte_e2e_test
 add_test(NAME lte_e2e_50prb_decim COMMAND lte_e2e_test
          ${CAPTURES}/lte_pci321_fs11.52e6_fc1842.5e6.fc32 11.52e6 1842.5e6 321 50)
 set_tests_properties(lte_e2e_6prb lte_e2e_50prb_decim PROPERTIES
+                     SKIP_RETURN_CODE 77)
+
+add_executable(nr_e2e_test tests/nr_e2e_test.cc)
+target_link_libraries(nr_e2e_test PRIVATE cellsearch)
+add_test(NAME nr_e2e_11.52M COMMAND nr_e2e_test
+         ${CAPTURES}/nr_pci500_fs11.52e6_fc3499.98e6.fc32 11.52e6 3499.98e6 500 30)
+add_test(NAME nr_e2e_23.04M_decim COMMAND nr_e2e_test
+         ${CAPTURES}/nr_pci77_fs23.04e6_fc3499.98e6.fc32 23.04e6 3499.98e6 77 30)
+set_tests_properties(nr_e2e_11.52M nr_e2e_23.04M_decim PROPERTIES
                      SKIP_RETURN_CODE 77)

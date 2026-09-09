@@ -28,7 +28,7 @@ public:
   double frame_duration_s() const override;
 
   /// LTE's PSS/SSS sits at carrier center — no NCO shift needed.
-  std::vector<double> nco_offsets_hz(double fc_hz) const override;
+  std::vector<double> nco_offsets_hz(double fc_hz, double fs_hz) const override;
 
   std::optional<CellRecord> search(const SyncFrame& frame) override;
 

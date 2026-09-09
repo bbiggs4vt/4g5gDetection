@@ -11,9 +11,15 @@ namespace cellsearch {
 
 /// Knobs for one per-channel probe.
 struct ProbeOptions {
-  /// Maximum number of sync attempts (analysis frames) per branch before the
-  /// channel is declared empty for that RAT.
+  /// Maximum number of sync attempts (analysis frames) per hypothesis before
+  /// it is declared a miss.
   unsigned max_attempts_per_branch = 4;
+
+  /// Length of the probe window buffered from the stream. Every RAT and
+  /// frequency hypothesis re-analyzes this same window (a stream can't be
+  /// rewound), so it must cover at least one branch analysis frame — LTE
+  /// needs 200 ms. A shorter stream is analyzed in full.
+  double capture_duration_s = 0.5;
 };
 
 /// Per-channel probe dispatcher.
