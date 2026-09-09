@@ -1,7 +1,9 @@
 #include "cellsearch/detector.h"
 
 #include <array>
+#include <cmath>
 #include <memory>
+#include <stdexcept>
 
 #include "src/framing.h"
 #include "src/lte_branch.h"
@@ -36,17 +38,30 @@ std::vector<CellRecord> Detector::probe(IqStream& stream) {
   const std::array<RatBranch*, 2> branches = {&impl_->lte, &impl_->nr};
 
   for (RatBranch* branch : branches) {
+    const double sync_rate = branch->sync_rate_hz();
+    const auto frame_len = static_cast<std::size_t>(
+        std::lround(branch->frame_duration_s() * sync_rate));
+
     for (double nco_offset : branch->nco_offsets_hz(info.fc_hz)) {
-      Framer framer({/*in_rate_hz=*/info.fs_hz,
-                     /*out_rate_hz=*/branch->sync_rate_hz(),
-                     /*nco_offset_hz=*/nco_offset,
-                     /*frame_len=*/0 /* TODO(step 2): size per branch */});
+      std::unique_ptr<Framer> framer;
+      try {
+        framer = std::make_unique<Framer>(Framer::Config{
+            /*in_rate_hz=*/info.fs_hz, /*fc_hz=*/info.fc_hz,
+            /*out_rate_hz=*/sync_rate, /*nco_offset_hz=*/nco_offset,
+            /*frame_len=*/frame_len});
+      } catch (const std::invalid_argument&) {
+        // Fs is not an integer multiple of this branch's sync rate — skip
+        // the branch rather than abort the probe. TODO: arbitrary rational
+        // resampling (srsran_resample_arb) + a diagnostics callback so the
+        // caller can see why a branch was skipped.
+        break;
+      }
 
       for (unsigned attempt = 0;
            attempt < impl_->options.max_attempts_per_branch; ++attempt) {
         SyncFrame frame{};
-        if (!framer.next_frame(stream, frame)) {
-          break; // Stream ended (or framing not implemented yet).
+        if (!framer->next_frame(stream, frame)) {
+          break; // Stream ended.
         }
         if (auto record = branch->search(frame)) {
           records.push_back(*record);

@@ -32,6 +32,10 @@ public:
   /// Sample rate the framing layer must decimate to before calling search().
   virtual double sync_rate_hz() const = 0;
 
+  /// Duration of one analysis frame, in seconds — enough samples for one
+  /// sync attempt (see SyncFrame). frame_len = duration * sync_rate.
+  virtual double frame_duration_s() const = 0;
+
   /// NCO frequency-shift hypotheses (offsets from stream Fc, in Hz) the
   /// framing layer should try for this branch. LTE's PSS/SSS is at carrier
   /// center, so LTE returns {0}. NR returns GSCN raster points near Fc,

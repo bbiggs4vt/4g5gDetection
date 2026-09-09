@@ -17,6 +17,8 @@ double NrBranch::sync_rate_hz() const {
   return 11.52e6;
 }
 
+double NrBranch::frame_duration_s() const { return 0.02; }
+
 std::vector<double> NrBranch::nco_offsets_hz(double /*fc_hz*/) const {
   // TODO(step 4): enumerate GSCN sync-raster points that fall inside the
   // captured bandwidth around fc_hz and return each as an offset — this is

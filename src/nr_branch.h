@@ -16,6 +16,9 @@ public:
   /// The stub reports the rate for the default hypothesis.
   double sync_rate_hz() const override;
 
+  /// ~One SSB burst period (20 ms) — guarantees at least one full burst.
+  double frame_duration_s() const override;
+
   /// The SSB sits on the GSCN sync raster, which is generally offset from
   /// Fc even on a "centered" carrier — so NR routinely needs the NCO shift.
   /// Returns candidate GSCN raster points near fc_hz, as offsets from it.

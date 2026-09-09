@@ -16,6 +16,9 @@ public:
   /// 1.92 Msps, regardless of the cell's real bandwidth.
   double sync_rate_hz() const override;
 
+  /// Two PBCH TTIs (2 x 40 ms): room for PSS/SSS lock plus a full MIB.
+  double frame_duration_s() const override;
+
   /// LTE's PSS/SSS sits at carrier center — no NCO shift needed.
   std::vector<double> nco_offsets_hz(double fc_hz) const override;
 

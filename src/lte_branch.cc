@@ -21,6 +21,8 @@ double LteBranch::sync_rate_hz() const {
   return static_cast<double>(srsran_sampling_freq_hz(kSyncRegionPrb));
 }
 
+double LteBranch::frame_duration_s() const { return 0.08; }
+
 std::vector<double> LteBranch::nco_offsets_hz(double /*fc_hz*/) const {
   return {0.0};
 }

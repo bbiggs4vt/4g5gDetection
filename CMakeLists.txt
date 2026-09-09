@@ -31,3 +31,9 @@ target_compile_options(cellsearch PRIVATE -Wall -Wextra)
 
 add_executable(cellsearch_probe apps/cellsearch_probe.cc)
 target_link_libraries(cellsearch_probe PRIVATE cellsearch)
+
+enable_testing()
+add_executable(framing_test tests/framing_test.cc)
+target_include_directories(framing_test PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+target_link_libraries(framing_test PRIVATE cellsearch)
+add_test(NAME framing_test COMMAND framing_test)
