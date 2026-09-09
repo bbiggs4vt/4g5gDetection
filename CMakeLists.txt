@@ -37,6 +37,31 @@ target_link_libraries(cellsearch_probe PRIVATE cellsearch)
 add_executable(gen_nr_ssb_capture tools/gen_nr_ssb_capture.cc)
 target_link_libraries(gen_nr_ssb_capture PRIVATE srsran::phy)
 
+# Sweep orchestration — the optional outer layer (retune/settle/probe loop).
+# SDR-free: it talks to radios only through the TunableIqSource interface.
+add_library(cellsearch_sweep src/sweep.cc)
+target_link_libraries(cellsearch_sweep PUBLIC cellsearch)
+
+# Live-radio glue, kept out of the core: built only when SoapySDR is present.
+option(ENABLE_SOAPYSDR "Build the SoapySDR live-radio glue + scan app" ON)
+if(ENABLE_SOAPYSDR)
+  find_package(SoapySDR CONFIG QUIET)
+  if(SoapySDR_FOUND)
+    add_library(cellsearch_sdr_soapy sdr/soapy_source.cc)
+    target_include_directories(cellsearch_sdr_soapy
+      PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}
+      PRIVATE ${SoapySDR_INCLUDE_DIRS})
+    target_link_libraries(cellsearch_sdr_soapy
+      PUBLIC cellsearch_sweep
+      PRIVATE ${SoapySDR_LIBRARIES})
+
+    add_executable(cellsearch_scan apps/cellsearch_scan.cc)
+    target_link_libraries(cellsearch_scan PRIVATE cellsearch_sdr_soapy)
+  else()
+    message(STATUS "SoapySDR not found — live-radio glue and scan app skipped")
+  endif()
+endif()
+
 enable_testing()
 add_executable(framing_test tests/framing_test.cc)
 target_include_directories(framing_test PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
@@ -63,3 +88,9 @@ add_test(NAME nr_e2e_23.04M_decim COMMAND nr_e2e_test
          ${CAPTURES}/nr_pci77_fs23.04e6_fc3499.98e6.fc32 23.04e6 3499.98e6 77 30)
 set_tests_properties(nr_e2e_11.52M nr_e2e_23.04M_decim PROPERTIES
                      SKIP_RETURN_CODE 77)
+
+add_executable(sweep_test tests/sweep_test.cc)
+target_link_libraries(sweep_test PRIVATE cellsearch_sweep)
+add_test(NAME sweep_test COMMAND sweep_test
+         ${CAPTURES}/lte_pci123_fs1.92e6_fc806e6.fc32)
+set_tests_properties(sweep_test PROPERTIES SKIP_RETURN_CODE 77)
