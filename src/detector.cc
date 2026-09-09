@@ -20,10 +20,12 @@ struct Detector::Impl {
   ProbeOptions options;
   LteBranch lte;
   NrBranch nr;
+
+  explicit Impl(ProbeOptions o) : options(o) {}
 };
 
 Detector::Detector(ProbeOptions options)
-    : impl_(std::make_unique<Impl>(Impl{options, {}, {}})) {}
+    : impl_(std::make_unique<Impl>(options)) {}
 
 Detector::~Detector() = default;
 

@@ -4,7 +4,10 @@ Known-good IQ captures used to verify the decode branches. Files are just
 streams — the bar for a branch is "locks onto the cell in a capture here and
 emits the expected PCI/SFN", not "it compiles".
 
-Files are git-ignored (large binaries); fetch or record them locally.
+Files are git-ignored (large binaries); regenerate the LTE ones with
+`scripts/gen_lte_captures.sh` (uses srsRAN's `pdsch_enodeb` example to write
+PSS/SSS/PBCH baseband for a chosen PCI straight to a file), or record your
+own. The e2e tests skip (exit 77) when a capture is missing.
 
 ## Format
 Raw interleaved complex float32 (`.fc32`), no header. Fs and Fc are required

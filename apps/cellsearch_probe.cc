@@ -50,7 +50,7 @@ int main(int argc, char** argv) {
       print_record(r);
     }
     if (records.empty()) {
-      std::printf("no cell detected (note: decode branches are still stubs)\n");
+      std::printf("no cell detected (note: the NR branch is still a stub)\n");
     }
     return records.empty() ? 1 : 0;
   } catch (const std::exception& e) {
